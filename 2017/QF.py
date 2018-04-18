@@ -24,30 +24,11 @@ class Pancakes:
         for i in range(position, position + flipper_width):
             self.cakes[i] = not self.cakes[i]
 
-    def find_next_flip_position(self, flipper_width):
-        times = len(self.cakes) // flipper_width
-        for time in range(1, times + 1):
-            for position in range(0, len(self.cakes) - flipper_width * time + 1):
-                if self.is_good_position_check1(position, position + flipper_width * time):
-                    if self.is_good_position_check2(position, position + flipper_width):
-                        return position
+    def find_next_flip_position(self, start, flipper_width):
+        for position in range(start, len(self.cakes) - flipper_width + 1):
+            if not self.cakes[position]:
+                return position
         return None
-    
-    def is_good_position_check2(self, start, end):
-        for i in range(start, end):
-            if not self.cakes[i]:
-                return True
-        return False
-
-    def is_good_position_check1(self, start, end):
-        last = self.cakes[start - 1] if start != 0 else True
-        if last != self.cakes[start]:
-            if end == len(self.cakes):
-                if not self.cakes[end - 1]:
-                    return True
-            elif self.cakes[end - 1] != self.cakes[end]:
-                return True
-        return False
 
     def len(self):
         return len(self.cakes)
@@ -56,12 +37,13 @@ def solve(pancakes, flipper_width):
     if flipper_width > pancakes.len():
         return 'IMPOSSIBLE'
     i = 0
+    position = 0
     while not pancakes.is_happy():
-        position = pancakes.find_next_flip_position(flipper_width)
+        position = pancakes.find_next_flip_position(position, flipper_width)
         if position is None:
             return 'IMPOSSIBLE'
         pancakes.flip(flipper_width, position)
-        eprint(pancakes)
+        #eprint(pancakes)
         i = i + 1
     else:
         return i
