@@ -21,58 +21,50 @@ class Pancakes:
         return True
     
     def flip(self, flipper_width, position):
-        new_pancakes = Pancakes(self)
         for i in range(position, position + flipper_width):
-            new_pancakes.cakes[i] = not new_pancakes.cakes[i]
-        return new_pancakes
+            self.cakes[i] = not self.cakes[i]
 
     def find_next_flip_position(self, flipper_width):
         times = len(self.cakes) // flipper_width
         for time in range(1, times + 1):
             for position in range(0, len(self.cakes) - flipper_width * time + 1):
-                next = self.flip(flipper_width * time, position)
-                #eprint(next)
-                #eprint(str(self.border_count()) + "->" + str(next.border_count()))
-                if self.border_count() - next.border_count() == 2 and self.happy_count() - next.happy_count() < flipper_width * time :
-                    return position
+                if self.is_good_position_check1(position, position + flipper_width * time):
+                    if self.is_good_position_check2(position, position + flipper_width):
+                        return position
         return None
+    
+    def is_good_position_check2(self, start, end):
+        for i in range(start, end):
+            if not self.cakes[i]:
+                return True
+        return False
 
-
-    def border_count(self):
-        last = True
-        count = 0
-        for c in self.cakes:
-            if c != last:
-                count += 1
-                last = c
-        if not self.cakes[len(self.cakes) - 1]:
-            count += 1
-        return count
-
-    def happy_count(self):
-        return self.cakes.count(True)
+    def is_good_position_check1(self, start, end):
+        last = self.cakes[start - 1] if start != 0 else True
+        if last != self.cakes[start]:
+            if end == len(self.cakes):
+                if not self.cakes[end - 1]:
+                    return True
+            elif self.cakes[end - 1] != self.cakes[end]:
+                return True
+        return False
 
     def len(self):
         return len(self.cakes)
 
-
-def iter(pancakes, flipper_width, current_flip_times):
-    position = pancakes.find_next_flip_position(flipper_width)
-    if position is None:
-        return 'IMPOSSIBLE'
-    new_pancakes = pancakes.flip(flipper_width, position)
-    #eprint(new_pancakes)
-    if new_pancakes.is_happy():
-        return current_flip_times + 1
-    else:
-        return iter(new_pancakes, flipper_width, current_flip_times + 1)
-
 def solve(pancakes, flipper_width):
-    if pancakes.is_happy():
-        return 0
     if flipper_width > pancakes.len():
         return 'IMPOSSIBLE'
-    return iter(pancakes, flipper_width, 0)
+    i = 0
+    while not pancakes.is_happy():
+        position = pancakes.find_next_flip_position(flipper_width)
+        if position is None:
+            return 'IMPOSSIBLE'
+        pancakes.flip(flipper_width, position)
+        eprint(pancakes)
+        i = i + 1
+    else:
+        return i
 
 def main():
     t = int(input())
